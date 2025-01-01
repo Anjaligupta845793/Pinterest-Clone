@@ -49,7 +49,8 @@ export const userLoginHandler = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email }).select("-password");
+    let user = await User.findOne({ email });
+
     if (!user) {
       return res.status(402).json({
         massage: "user doesn't exits with this email ",
@@ -62,13 +63,16 @@ export const userLoginHandler = async (req, res) => {
       });
     }
     genratejwt(user._id, res);
+    const sendinguser = await User.findOne({ email }).select("-password");
     res.status(200).json({
-      user,
+      user: sendinguser,
       massage: "Logged in !",
     });
   } catch (error) {
     res.status(500).json({
+      status: "fail",
       massage: "something went wrong",
+      erro: error.massage,
     });
   }
 };
@@ -111,6 +115,57 @@ export const userProfileFetchHandler = async (req, res) => {
   } catch (error) {
     res.status(404).json({
       massage: "something went wrong",
+    });
+  }
+};
+
+export const followAndUnfollowUserHandler = async (req, res) => {
+  /* 1 -  find id of login user and user 
+     2 - check if he is trying to follow oneself 
+     3-  then fine the index of following id of login and follower of user 
+     4-  remove id from login following and user follower list
+     5- save the changess in database */
+
+  try {
+    const logedInUser = await User.findById(req.user._id);
+    const user = await User.findById(req.params.id);
+
+    if (logedInUser._id.toString() === user._id.toString()) {
+      return res.status(402).json({
+        massage: "you can't follow yourself !",
+      });
+    }
+    if (user.followers.includes(logedInUser._id)) {
+      try {
+        const userIndex = user.followers.indexOf(logedInUser._id);
+        const loginUserIndex = logedInUser.following.indexOf(user._id);
+
+        user.followers.splice(userIndex, 1);
+        logedInUser.following.splice(loginUserIndex, 1);
+
+        await user.save();
+        await logedInUser.save();
+        res.status(200).json({
+          massage: "Unfollowed!",
+        });
+      } catch (error) {
+        res.status(200).json({
+          massage: "error",
+          error: error.massage,
+        });
+      }
+    } else {
+      user.followers.push(logedInUser._id);
+      logedInUser.following.push(user._id);
+      await user.save();
+      await logedInUser.save();
+      res.status(200).json({
+        massage: "User Followed",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      massage: "Something went wrong",
     });
   }
 };
