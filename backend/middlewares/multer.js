@@ -1,6 +1,8 @@
 import multer from "multer";
 
-const storage = multer.memoryStorage();
-const uploadFile = multer({ storage }).single("file");
+const uploadFile = multer({
+  storage: multer.diskStorage({}),
+  limits: { fileSize: 500000 },
+}).single("file");
 
 export default uploadFile;

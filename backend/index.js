@@ -3,9 +3,9 @@ import express from "express";
 import connectDb from "./database/db.js";
 import userrouter from "./routes/user.js";
 import PinRouter from "./routes/pin.js";
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "cloudinary";
 
-cloudinary.config({
+cloudinary.v2.config({
   cloud_name: process.env.cloud_name,
   api_key: process.env.cloud_apikey,
   api_secret: process.env.cloud_apisecret,

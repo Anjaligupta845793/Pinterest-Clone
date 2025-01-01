@@ -5,25 +5,25 @@ import cloudinary from "cloudinary";
 export const createPin = async (req, res) => {
   try {
     const { name, discription } = req.body;
-    const file = req.file;
+    const file = req.file.path;
 
-    const fileUrl = getDataUrl(file);
-    console.log("uploading");
+    try {
+      console.log(file);
+      const uploadResult = await cloudinary.v2.uploader.upload(file);
+      const pin = await Pin.create({
+        name,
+        discription,
+        user: req.user._id,
+        image: {
+          url: uploadResult.secure_url,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
-    const cloud = await cloudinary.v2.uploader.upload(fileUrl.content);
-    console.log("cloud", cloud.public_id);
-    console.log(cloud);
-    const pin = await Pin.create({
-      name,
-      discription,
-      user: req.user._id,
-      image: {
-        id: cloud.public_id,
-        url: cloud.secure_url,
-      },
-    });
     res.json({
-      massage: "pin is created",
+      message: "pin is created",
     });
   } catch (error) {
     res.status(500).json({
