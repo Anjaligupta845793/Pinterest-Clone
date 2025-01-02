@@ -15,10 +15,7 @@ const Schema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    image: {
-      id: String,
-      url: String,
-    },
+    image: String,
     comments: [
       {
         user: {
