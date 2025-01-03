@@ -7,11 +7,6 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 dotenv.config();
 
-cloudinary.config({
-  cloud_name: "dguexj9co",
-  api_key: "915468918364975",
-  api_secret: "dRSyb5rSTH1qYSixZvJTKE8f32k",
-});
 
 const app = express();
 
